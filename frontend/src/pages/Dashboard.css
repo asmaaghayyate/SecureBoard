@@ -1,0 +1,2 @@
+.dashboard { display:flex; }
+.dashboard-content { margin-left:240px; padding:20px; flex:1; background:#ecf0f1; min-height:100vh; }
