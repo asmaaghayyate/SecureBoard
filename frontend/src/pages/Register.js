@@ -1,40 +1,40 @@
-import React, { useContext, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import "./Register.css";
+import React, { useState, useContext } from 'react';
+import api from '../api/axiosConfig';
+import { AuthContext } from '../context/AuthContext';
+import './Register.css';
 
-function Register() {
-  const { register } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [name,setName] = useState("");
-  const [email,setEmail] = useState("");
-  const [password,setPassword] = useState("");
-  const [role,setRole] = useState("user");
+export default function Register({ toggle }) {
+  const { setUser } = useContext(AuthContext);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = register(name,email,password,role);
-    if(success) navigate("/dashboard");
-    else alert("Email already exists!");
-  }
+    setError('');
+
+    try {
+      const res = await api.post('/register', { name, email, password });
+      setUser(res.data.user);
+    } catch (err) {
+      setError('Something went wrong! Please try again.');
+    }
+  };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Register</h2>
-        <input placeholder="Name" value={name} onChange={e=>setName(e.target.value)} required/>
-        <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} required/>
-        <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} required/>
-        <select value={role} onChange={e=>setRole(e.target.value)}>
-          <option value="user">User</option>
-          <option value="manager">Manager</option>
-          <option value="admin">Admin</option>
-        </select>
+    <div className="auth-container">
+      <h2>Register</h2>
+      {error && <p className="error">{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <input type="text" placeholder="Name" value={name} onChange={e => setName(e.target.value)} required />
+        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
         <button type="submit">Register</button>
-        <p>Already have account? <Link to="/login">Login</Link></p>
       </form>
+      <p>
+        Already have an account? <span className="link" onClick={toggle}>Login</span>
+      </p>
     </div>
-  )
+  );
 }
-
-export default Register;

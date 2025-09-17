@@ -1,32 +1,38 @@
-import React, { useContext, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../context/AuthContext";
-import "./Login.css";
+import React, { useState, useContext } from 'react';
+import api from '../api/axiosConfig';
+import { AuthContext } from '../context/AuthContext';
+import './Login.css';
 
-function Login() {
-  const { login } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [email,setEmail] = useState("");
-  const [password,setPassword] = useState("");
+export default function Login({ toggle }) {
+  const { setUser } = useContext(AuthContext);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = login(email,password);
-    if(success) navigate("/dashboard");
-    else alert("Email or Password incorrect!");
-  }
+    setError('');
+
+    try {
+      const res = await api.post('/login', { email, password });
+      setUser(res.data.user);
+    } catch (err) {
+      setError('Invalid credentials!');
+    }
+  };
 
   return (
-    <div className="login-container">
-      <form className="login-form" onSubmit={handleSubmit}>
-        <h2>Login</h2>
-        <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)} required/>
-        <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)} required/>
+    <div className="auth-container">
+      <h2>Login</h2>
+      {error && <p className="error">{error}</p>}
+      <form onSubmit={handleSubmit}>
+        <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
         <button type="submit">Login</button>
-        <p>Don't have account? <Link to="/register">Register</Link></p>
       </form>
+      <p>
+        Don't have an account? <span className="link" onClick={toggle}>Register</span>
+      </p>
     </div>
-  )
+  );
 }
-
-export default Login;
