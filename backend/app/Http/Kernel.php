@@ -36,7 +36,8 @@ class Kernel extends HttpKernel
         ],
 
         'api' => [
-            \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class, // pour Breeze API SPA
+            'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
     ];
